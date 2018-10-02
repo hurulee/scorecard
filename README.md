@@ -1,4 +1,4 @@
-# scorecard
+# Credit scoring projects
 
 Credit scorecards developed on various data sourced from the internet:
 
