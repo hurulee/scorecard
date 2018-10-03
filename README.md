@@ -1,4 +1,5 @@
 # Credit scoring projects
+### note: reject inference is not included yet
 
 Credit scorecards developed on various data sourced from the internet:
 
