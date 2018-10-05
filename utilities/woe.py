@@ -43,8 +43,34 @@ import statsmodels.formula.api as sm
 from sklearn import model_selection
 
 
+# see https://medium.com/@sundarstyles89/weight-of-evidence-and-information-value-using-python-6f05072e83eb
+# and https://github.com/Sundar0989/WOE-and-IV/blob/master/WOE_IV.ipynb for WOE and IV calculation
+# he got the order of dist_good and dist_bad reversed in WOE and IV
+
+
 def woe_conversion(df, woe):
+    """
+    Converts the values of each variable for each borrower from its original
+    value into the weight of evidence (WOE) values of the variable bin that 
+    the input value is in.
     
+    Parameters
+    ----------
+    
+    df : pandas dataframe
+        Cleaned explanatory variable training / testing / validation data frame
+        that will be used to fit the model.
+        
+    woe : pandas dataframe
+        WOE / IV table that is output from woe_analysis() function
+        
+    Return
+    ------
+    
+    df_copy : pandas dataframe
+        Converted dataframe, from original input values to corresponding WOE values
+        
+    """
     df_copy = df.copy()
     woe_df = woe.copy()
 
@@ -113,7 +139,29 @@ def woe_conversion(df, woe):
 
 
 def woe_graph(df, is_numeric):
-
+    """
+    This function is called within the woe_analysis() function.
+    
+    Plots the optimal binning of variables in training / testing / validation dataframe
+    Figure and table with buckets, min observed value and max observed value for each 
+    variable is generated. 
+    
+    Parameters
+    ----------
+    df : pandas dataframe
+        output data frame from mono_bin or char_bin functions. It is a dataframe for 
+        one optimally binned variable with information to generate corresponding graph
+        
+    is_numeric : boolean
+       True = if variable type is int or float and not binary indicator variable
+       (i.e., only two values)
+       False = variable type is obj or binary indicator
+       
+    Return
+    ------
+    N/A
+    
+    """
     binx = df.copy()
     # binx = binx.loc[binx['VAR_NAME'] == 'property_type']
     total = binx['COUNT'].sum()
@@ -181,7 +229,40 @@ def woe_graph(df, is_numeric):
 
 
 def woe_analysis(df1, target, max_bin, force_bin):
+    """
+    wrapper function for mono_bin, char_bin, and woe_graph functions.
+    This will automatically construct bins for each variable. For numerical
+    variables, it will create bins such that the WOE relationship between bins 
+    is monotonic.
     
+    Parameters
+    ----------
+    
+    df1 : pandas dataframe
+        training dataset
+        
+    target : pandas series
+        target vector
+        
+    max_bin : int
+        the maximum number of bins (categories) for numeric variable binning. 
+        
+    force_bin : int
+        For some numeric variables, the mono_bin function may produce only one 
+        category while binning. ‘force_bin’ ensures that at least produces two
+        categories will be produced.
+        
+    Return
+    ------
+    
+    iv_df : pandas dataframe
+        Weight of evidence / information value table and other data used to 
+        calculate WOE and IV for variables in dataset
+    
+    iv : pandas dataframe
+        Information value table for variables in dataset
+    
+    """
     max_bin = max_bin
     force_bin = force_bin
     stack = traceback.extract_stack()
@@ -216,11 +297,35 @@ def woe_analysis(df1, target, max_bin, force_bin):
 
 
 
-# see https://github.com/Sundar0989/WOE-and-IV/blob/master/WOE_IV.ipynb for WOE and IV calculation
-# he got the order of dist_good and dist_bad reversed in WOE and IV
-
-# define a binning function
 def mono_bin(Y, X, max_bin, force_bin):
+    """
+    binning function for int and float type variables, and not binary indicator variable
+    
+    Parameters
+    ----------
+    
+    Y : pandas series
+        target vector
+        
+    X : pandas dataframe
+        training dataset
+        
+    max_bin : int
+        the maximum number of bins (categories) for numeric variable binning. 
+        
+    force_bin : int
+        For some numeric variables, the mono_bin function may produce only one 
+        category while binning. ‘force_bin’ ensures that at least produces two
+        categories will be produced. 
+        
+    Return
+    ------
+    
+    d3 : pandas dataframe
+        Weight of evidence / information value table and other data used to 
+        calculate WOE and IV for variable i in dataset
+       
+    """
     n = max_bin
     df1 = pd.DataFrame({"X": X, "Y": Y})
     justmiss = df1[['X','Y']][df1.X.isnull()]
@@ -289,7 +394,26 @@ def mono_bin(Y, X, max_bin, force_bin):
     return(d3)
 
 def char_bin(Y, X):
+    """
+    binning function for obj type variables, and binary indicator variable
+    
+    Parameters
+    ----------
+    
+    Y : pandas series
+        target vector
         
+    X : pandas dataframe
+        training dataset
+        
+    Return
+    ------
+    
+    d3 : pandas dataframe
+        Weight of evidence / information value table and other data used to 
+        calculate WOE and IV for variable i in dataset
+       
+    """    
     df1 = pd.DataFrame({"X": X, "Y": Y})
     justmiss = df1[['X','Y']][df1.X.isnull()]
     notmiss = df1[['X','Y']][df1.X.notnull()]    

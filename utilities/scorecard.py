@@ -43,7 +43,49 @@ import statsmodels.formula.api as sm
 from sklearn import model_selection
 
 def scorecard(df, model, woe_iv_table, points0, odds0, pdo):
-
+    """
+    Calculates the total score of each borrower observation in the data frame.
+    Score calculation based on chapter four of "Intelligent Credit Scoring: 
+    Building and Implementing Better Credit Risk Scorecards" (2nd edition, 2017) by 
+    Naeem Siddiqi
+    
+    Parameters
+    ----------
+    
+    df : pandas data frame
+        WOE-converted binned training dataframe - woe_conversion function output
+    
+    model : sklearn object
+        fitted model object
+    
+    woe_iv_table : pandas data frame
+        Weight of evidence / information value table and other data used to 
+        calculate WOE and IV for variables in dataset - woe_analysis function
+        output
+    
+    points0 : int
+        base score used to calculate offset
+        
+    odd0 : int
+        base odds used to calculate offset
+        
+    pdo : int
+        "points to double odds" - scaling factor used in credit scoring models 
+        built with logistic regression
+    
+    Return
+    ------
+    
+    score_tab : pandas data frame
+        score card summary table 
+        
+    df_copy : pandas data frame
+        training dataframe with the original WOE input values for every characteristic 
+        in the model, converted into the corresponding scores using the formulae 
+        provided in Siddiqi (2017). The resulting score for every borrower's attribute 
+        for every characteristic is summed across the row to generate the total score. 
+    
+    """
     points0=points0
     odds0=odds0 
     pdo=pdo

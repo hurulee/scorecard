@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # data analysis and wrangling
 import pandas as pd
 import numpy as np
@@ -43,6 +41,32 @@ import statsmodels.formula.api as sm
 from sklearn import model_selection
 
 def adverse_action(scored_data):
+    """
+    Generates the top four adverse action codes for each borrower observation in the 
+    input dataframe. For each borrower observation, this function will generate four 
+    columns, where the first column is the characteristic with smallest
+    difference from the neutral score, the second column is the characteristic with the
+    second smallest difference from the neutral score, etc. The last (fifth) column 
+    is the borrowers credit score from the scored_data dataframe. 
+    
+    Parameters
+    ----------
+    
+    scored_data : pandas dataframe
+        The data frame with borrower score column that is outputted from scorecard() function
+        
+    Return
+    ------
+    
+    reason_tab : pandas dataframe
+        Dataframe with five columns, indexed by borrower observation number. 
+        The first column lists the characteristic with the least (presumably negative)
+        difference from the neutral score, the second column list the characteristic
+        with the second least difference from the neutral score, etc. The last column
+        lists the borrower's total score (from the scored_data dataframe). 
+    
+    """
+    
     df_copy = scored_data.copy(deep=True)
     col_names = list(df_copy.columns)
 
